@@ -187,7 +187,7 @@ initblink1 (void)
   if (PyType_Ready (&BlinkType) < 0)
     return;
 
-  m = Py_InitModule3 ("blink1", blink1_methods, "Extension module example!");
+  m = Py_InitModule ("blink1", blink1_methods);
   if (m == NULL)
     return;
 
