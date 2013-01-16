@@ -46,6 +46,7 @@ static void
 Blink_dealloc (Blink * self)
 {
   usbhidCloseDevice (self->dev);
+  self->ob_type->tp_free ((PyObject *) self);
 }
 
 static int
