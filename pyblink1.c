@@ -11,36 +11,18 @@
 #define IDENT_VENDOR_STRING     "ThingM"
 #define IDENT_PRODUCT_STRING    "blink(1)"
 
-static void
-blink1_raise_error (int rc)
-{
-  static char buf[80];
-
-  switch (rc)
-    {
-    case USBOPEN_ERR_ACCESS:
-      PyErr_SetString (PyExc_StandardError, "Access to device denied");
-      break;
-    case USBOPEN_ERR_NOTFOUND:
-      PyErr_SetString (PyExc_StandardError,
-		       "The specified device was not found");
-      break;
-    case USBOPEN_ERR_IO:
-      PyErr_SetString (PyExc_StandardError,
-		       "Communication error with device");
-      break;
-    default:
-      sprintf (buf, "Unknown USB error %d", rc);
-      buf[sizeof (buf) - 1] = '\0';
-      PyErr_SetString (PyExc_StandardError, buf);
-    }
-}
+static void blink1_raise_error (int);
 
 typedef struct
 {
   PyObject_HEAD
   usbDevice_t * dev;
 } Blink;
+
+static void Blink_dealloc (Blink *);
+static int Blink_init (Blink *, PyObject *, PyObject *);
+static PyObject * Blink_set_rgb (Blink *, PyObject *);
+static PyObject * Blink_fade_to_rgb (Blink *, PyObject *);
 
 static void
 Blink_dealloc (Blink * self)
@@ -126,6 +108,31 @@ Blink_fade_to_rgb (Blink * self, PyObject * args)
     blink1_raise_error (rc);
 
   Py_RETURN_NONE;
+}
+
+static void
+blink1_raise_error (int rc)
+{
+  static char buf[80];
+
+  switch (rc)
+    {
+    case USBOPEN_ERR_ACCESS:
+      PyErr_SetString (PyExc_StandardError, "Access to device denied");
+      break;
+    case USBOPEN_ERR_NOTFOUND:
+      PyErr_SetString (PyExc_StandardError,
+		       "The specified device was not found");
+      break;
+    case USBOPEN_ERR_IO:
+      PyErr_SetString (PyExc_StandardError,
+		       "Communication error with device");
+      break;
+    default:
+      sprintf (buf, "Unknown USB error %d", rc);
+      buf[sizeof (buf) - 1] = '\0';
+      PyErr_SetString (PyExc_StandardError, buf);
+    }
 }
 
 static PyMethodDef Blink_methods[] = {
