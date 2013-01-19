@@ -13,6 +13,8 @@
 
 static void blink1_raise_error (int);
 
+static PyObject *Blink1Error;
+
 typedef struct
 {
   PyObject_HEAD
@@ -132,20 +134,20 @@ blink1_raise_error (int rc)
   switch (rc)
     {
     case USBOPEN_ERR_ACCESS:
-      PyErr_SetString (PyExc_StandardError, "Access to device denied");
+      PyErr_SetString (Blink1Error, "Access to device denied");
       break;
     case USBOPEN_ERR_NOTFOUND:
-      PyErr_SetString (PyExc_StandardError,
+      PyErr_SetString (Blink1Error,
 		       "The specified device was not found");
       break;
     case USBOPEN_ERR_IO:
-      PyErr_SetString (PyExc_StandardError,
+      PyErr_SetString (Blink1Error,
 		       "Communication error with device");
       break;
     default:
       sprintf (buf, "Unknown USB error %d", rc);
       buf[sizeof (buf) - 1] = '\0';
-      PyErr_SetString (PyExc_StandardError, buf);
+      PyErr_SetString (Blink1Error, buf);
     }
 }
 
@@ -214,4 +216,8 @@ initblink1 (void)
 
   Py_INCREF (&BlinkType);
   PyModule_AddObject (m, "Blink", (PyObject *) & BlinkType);
+
+  Blink1Error = PyErr_NewException ("blink1.Error", NULL, NULL);
+  Py_INCREF(Blink1Error);
+  PyModule_AddObject(m, "Error", Blink1Error);
 }
