@@ -18,6 +18,7 @@ static PyObject *Blink1Error;
 typedef struct
 {
   PyObject_HEAD
+
   usbDevice_t *dev;
 } Blink;
 
@@ -29,9 +30,9 @@ static PyObject *Blink_fade_to_rgb (Blink *, PyObject *);
 static void
 Blink_dealloc (Blink * self)
 {
-  Py_BEGIN_ALLOW_THREADS
+  Py_BEGIN_ALLOW_THREADS;
   usbhidCloseDevice (self->dev);
-  Py_END_ALLOW_THREADS
+  Py_END_ALLOW_THREADS;
 
   self->ob_type->tp_free ((PyObject *) self);
 }
@@ -40,14 +41,14 @@ static int
 Blink_init (Blink * self, PyObject * args, PyObject * kwargs)
 {
   int rc;
-  Py_BEGIN_ALLOW_THREADS
+  Py_BEGIN_ALLOW_THREADS;
   rc = usbhidOpenDevice (&self->dev,
                          IDENT_VENDOR_NUM,
                          IDENT_VENDOR_STRING,
                          IDENT_PRODUCT_NUM,
                          IDENT_PRODUCT_STRING,
                          1);	/* NOTE: `0' means "not using report IDs" */
-  Py_END_ALLOW_THREADS
+  Py_END_ALLOW_THREADS;
 
   if (rc == 0)
     return 0;
@@ -78,9 +79,9 @@ Blink_set_rgb (Blink * self, PyObject * args)
   buf[4] = (char) b;
 
   int rc;
-  Py_BEGIN_ALLOW_THREADS
+  Py_BEGIN_ALLOW_THREADS;
   rc = usbhidSetReport (self->dev, buf, sizeof (buf));
-  Py_END_ALLOW_THREADS
+  Py_END_ALLOW_THREADS;
 
   if (rc != 0)
     blink1_raise_error (rc);
@@ -116,9 +117,9 @@ Blink_fade_to_rgb (Blink * self, PyObject * args)
   buf[6] = dms % 0xff;
 
   int rc;
-  Py_BEGIN_ALLOW_THREADS
+  Py_BEGIN_ALLOW_THREADS;
   rc = usbhidSetReport (self->dev, buf, sizeof (buf));
-  Py_END_ALLOW_THREADS
+  Py_END_ALLOW_THREADS;
 
   if (rc != 0)
     blink1_raise_error (rc);
@@ -137,12 +138,10 @@ blink1_raise_error (int rc)
       PyErr_SetString (Blink1Error, "Access to device denied");
       break;
     case USBOPEN_ERR_NOTFOUND:
-      PyErr_SetString (Blink1Error,
-		       "The specified device was not found");
+      PyErr_SetString (Blink1Error, "The specified device was not found");
       break;
     case USBOPEN_ERR_IO:
-      PyErr_SetString (Blink1Error,
-		       "Communication error with device");
+      PyErr_SetString (Blink1Error, "Communication error with device");
       break;
     default:
       sprintf (buf, "Unknown USB error %d", rc);
@@ -218,6 +217,6 @@ initblink1 (void)
   PyModule_AddObject (m, "Blink", (PyObject *) & BlinkType);
 
   Blink1Error = PyErr_NewException ("blink1.Error", NULL, NULL);
-  Py_INCREF(Blink1Error);
-  PyModule_AddObject(m, "Error", Blink1Error);
+  Py_INCREF (Blink1Error);
+  PyModule_AddObject (m, "Error", Blink1Error);
 }
