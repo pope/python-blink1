@@ -16,31 +16,37 @@ static void blink1_raise_error (int);
 typedef struct
 {
   PyObject_HEAD
-  usbDevice_t * dev;
+  usbDevice_t *dev;
 } Blink;
 
 static void Blink_dealloc (Blink *);
 static int Blink_init (Blink *, PyObject *, PyObject *);
-static PyObject * Blink_set_rgb (Blink *, PyObject *);
-static PyObject * Blink_fade_to_rgb (Blink *, PyObject *);
+static PyObject *Blink_set_rgb (Blink *, PyObject *);
+static PyObject *Blink_fade_to_rgb (Blink *, PyObject *);
 
 static void
 Blink_dealloc (Blink * self)
 {
+  Py_BEGIN_ALLOW_THREADS
   usbhidCloseDevice (self->dev);
+  Py_END_ALLOW_THREADS
+
   self->ob_type->tp_free ((PyObject *) self);
 }
 
 static int
 Blink_init (Blink * self, PyObject * args, PyObject * kwargs)
 {
-  int rc = usbhidOpenDevice (&self->dev,
-			     IDENT_VENDOR_NUM,
-			     IDENT_VENDOR_STRING,
-			     IDENT_PRODUCT_NUM,
-			     IDENT_PRODUCT_STRING,
-			     1);	/* NOTE: `0' means "not using report
-					 * IDs" */
+  int rc;
+  Py_BEGIN_ALLOW_THREADS
+  rc = usbhidOpenDevice (&self->dev,
+                         IDENT_VENDOR_NUM,
+                         IDENT_VENDOR_STRING,
+                         IDENT_PRODUCT_NUM,
+                         IDENT_PRODUCT_STRING,
+                         1);	/* NOTE: `0' means "not using report IDs" */
+  Py_END_ALLOW_THREADS
+
   if (rc == 0)
     return 0;
 
@@ -69,7 +75,11 @@ Blink_set_rgb (Blink * self, PyObject * args)
   buf[3] = (char) g;
   buf[4] = (char) b;
 
-  int rc = usbhidSetReport (self->dev, buf, sizeof (buf));
+  int rc;
+  Py_BEGIN_ALLOW_THREADS
+  rc = usbhidSetReport (self->dev, buf, sizeof (buf));
+  Py_END_ALLOW_THREADS
+
   if (rc != 0)
     blink1_raise_error (rc);
 
@@ -103,7 +113,11 @@ Blink_fade_to_rgb (Blink * self, PyObject * args)
   buf[5] = (dms >> 8);
   buf[6] = dms % 0xff;
 
-  int rc = usbhidSetReport (self->dev, buf, sizeof (buf));
+  int rc;
+  Py_BEGIN_ALLOW_THREADS
+  rc = usbhidSetReport (self->dev, buf, sizeof (buf));
+  Py_END_ALLOW_THREADS
+
   if (rc != 0)
     blink1_raise_error (rc);
 
