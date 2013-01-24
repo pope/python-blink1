@@ -158,7 +158,7 @@ static PyMethodDef Blink_methods[] = {
 
 static PyTypeObject BlinkType = {
   PyObject_HEAD_INIT (NULL) 0,	/* ob_size */
-  "blink1.Blink",		/* tp_name */
+  "_device.Blink",		/* tp_name */
   sizeof (Blink),		/* tp_basicsize */
   0,				/* tp_itemsize */
   (destructor) Blink_dealloc,	/* tp_dealloc */
@@ -202,21 +202,21 @@ static PyMethodDef blink1_methods[] = {
 };
 
 PyMODINIT_FUNC
-initblink1 (void)
+init_device (void)
 {
   PyObject *m;
 
   if (PyType_Ready (&BlinkType) < 0)
     return;
 
-  m = Py_InitModule ("blink1", blink1_methods);
+  m = Py_InitModule ("_device", blink1_methods);
   if (m == NULL)
     return;
 
   Py_INCREF (&BlinkType);
   PyModule_AddObject (m, "Blink", (PyObject *) & BlinkType);
 
-  Blink1Error = PyErr_NewException ("blink1.Error", NULL, NULL);
+  Blink1Error = PyErr_NewException ("_device.Error", NULL, NULL);
   Py_INCREF (Blink1Error);
   PyModule_AddObject (m, "Error", Blink1Error);
 }
